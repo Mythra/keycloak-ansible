@@ -1,0 +1,23 @@
+---
+- name: Keycloak PreReqs | Install Java8
+  package:
+    name: openjdk8-jre
+    state: present
+
+- name: Keycloak PreReqs | Copy Over Mount Util
+  copy:
+    src: ensure-mounts.sh
+    dest: /tmp/ensure-mounts.sh
+    mode: 0755
+    owner: root
+    group: wheel
+
+- name: Keycloak PreReqs | Run Mount Util
+  shell: /tmp/ensure-mounts.sh
+  args:
+    executable: /usr/local/bin/bash
+
+- name: Keycloak PreReqs | Remove Mount Util
+  file:
+    path: /tmp/ensure-mounts.sh
+    state: absent

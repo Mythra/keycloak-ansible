@@ -1,0 +1,24 @@
+#!/usr/local/bin/bash
+
+MALLOC_ARENA_MAX="${MALLOC_ARENA_MAX:-1}"
+export MALLOC_ARENA_MAX
+export JBOSS_HOME="{{ keycloak_dir }}"
+
+# Setup the JVM
+if [ "x$JAVA" = "x" ]; then
+  if [ "x$JAVA_HOME" != "x" ]; then
+    JAVA="$JAVA_HOME/bin/java"
+  else
+    JAVA="$(which java)"
+  fi
+fi
+
+eval "$JAVA" -Djboss.home.dir="$JBOSS_HOME" \
+  -Djboss.domain.config.user.dir="$JBOSS_HOME/jboss/configuration" \
+  -Djboss.server.config.user.dir="$JBOSS_HOME/jboss/configuration" \
+  -Djboss.server.base.dir="$JBOSS_HOME/jboss" \
+  -Djboss.server.data.dir="{{ jboss_data_dir }}" \
+  -Djboss.server.log.dir="{{ jboss_log_dir }}" \
+  -jar "$JBOSS_HOME/jboss-modules.jar" \
+  -mp "$JBOSS_HOME/modules" \
+  org.keycloak.keycloak-wildfly-adduser "$@"

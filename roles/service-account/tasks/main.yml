@@ -1,0 +1,14 @@
+- name: ServiceAccount | Create service account group
+  group:
+    name: "{{ service_account_group }}"
+    system: yes
+
+- name: ServiceAccount | Create service account user
+  user:
+    name: "{{ service_account_user }}"
+    comment: "{{ service_account_description }}"
+    home: "{{ service_account_home }}"
+    group: "{{ service_account_group }}"
+    shell: "{{ service_account_shell }}"
+    createhome: yes
+    system: yes

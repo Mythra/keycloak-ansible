@@ -1,0 +1,87 @@
+---
+keycloak_version: "4.5.0.Final"
+keycloak_dir: "/srv/keycloak"
+java_max_memory: "2048m"
+java_mem_block_size: "128m"
+jboss_log_dir: "/var/log/jboss"
+jboss_log_file: "{{ jboss_log_dir }}/jboss.log"
+jboss_data_dir: "{{ keycloak_dir }}/data"
+
+management_bind_address: "127.0.0.1"
+public_bind_address: "0.0.0.0"
+private_bind_address: "127.0.0.1"
+
+management_http_port: 9990
+management_https_port: 9993
+ajp_port: 8009
+http_port: 8080
+https_port: 8443
+
+txn_recovery_env_port: 4712
+txn_status_manager_port: 4713
+
+smtp_host: "localhost"
+smtp_port: 25
+
+# multicast_address
+multicast_addr: "230.0.0.4"
+modcluster_multicast_addr: "224.0.1.105"
+jgroups_multicast_port: 45700
+jgroups_tcp_port: 7600
+# Jgroups UDP binds to a TCP Port, and a seperate UDP port than the original multicast?
+# I don't even know what sane is anymore.
+jgroups_tcp_udp_port: 55200
+jgroups_udp_multicast_port: 45688
+modcluster_multicast_port: 23364
+
+# Controls the SSL Certificate the JBoss Web Server Presents.
+#
+# Set to a non-empty complete path to trigger the change in the JBoss Settings.
+webserver_ssl_cert_path: ''
+webserver_keystore_password: ''
+webserver_keystore_key_alias: 'server'
+webserver_keystore_key_password: ''
+
+# Defines a list of application roles that get read from a configuration file.
+# Specifically this gets dropped in ./jboss/configuration/application-roles.properties
+# Should be strings in the format of: "user=GroupOne,GroupTwo"
+hardcoded_application_roles: []
+# Defines a list of hardcoded application users. These users will be created from
+# a configuration file. Specifically this gets dropped in
+# ./jboss/configuration/application-users.properties
+#
+# NOTE: Users predefined here have their passwords stored as MD5 encoded passwords
+# on disk. This is a very insecure way of storing things if someone got access to
+# your box to read this config file. We do create it as 0600 to hopefully help,
+# but we can only do so much.
+#
+# The format for hardcoded application users is actually an object per
+# user. Specifically:
+#
+# hardcoded_application_users: [ {username: "username", password: "password"} ]
+#
+# NOTE: The username/password cannot have: ":" in their name since keycloak uses that as
+# a seperator.
+hardcoded_application_users: []
+
+# Defines a list of application roles that get read from a configuration file.
+# Specifically this gets dropped in ./jboss/configuration/mgmt-roles.properties
+# Should be strings in the format of: "user=GroupOne,GroupTwo"
+hardcoded_management_roles: []
+# Defines a list of hardcoded management users. These users will be created from
+# a configuration file. Specifically this gets dropped in
+# ./jboss/configuration/mgmt-users.properties
+#
+# NOTE: Users predefined here have their passwords stored as MD5 encoded passwords
+# on disk. This is a very insecure way of storing things if someone got access to
+# your box to read this config file. We do create it as 0600 to hopefully help,
+# but we can only do so much.
+#
+# The format for hardcoded application users is actually an object per
+# user. Specifically:
+#
+# hardcoded_application_users: [ {username: "username", password: "password"} ]
+#
+# NOTE: The username/password cannot have: ":" in their name since keycloak uses that as
+# a seperator.
+hardcoded_management_users: []

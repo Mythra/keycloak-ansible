@@ -1,0 +1,28 @@
+#!/usr/local/bin/bash
+
+MALLOC_ARENA_MAX="${MALLOC_ARENA_MAX:-1}"
+export MALLOC_ARENA_MAX
+export JBOSS_HOME="{{ keycloak_dir }}"
+
+JAVA_OPTS="-Xms{{ java_mem_block_size }} -Xmx{{ java_max_memory }} -XX:MetaspaceSize=96M -XX:MaxMetaspaceSize=256m -Djava.net.preferIPv4Stack=true"
+JAVA_OPTS="$JAVA_OPTS -Djboss.modules.system.pkgs=org.jboss.byteman -Djava.awt.headless=true"
+JAVA_OPTS="$JAVA_OPTS -Djava.security.egd=file:/dev/urandom"
+
+# Setup the JVM
+if [ "x$JAVA" = "x" ]; then
+  if [ "x$JAVA_HOME" != "x" ]; then
+    JAVA="$JAVA_HOME/bin/java"
+  else
+    JAVA="$(which java)"
+  fi
+fi
+
+eval "$JAVA" $JAVA_OPTS -Dorg.jboss.boot.log.file="{{ jboss_log_file }}" \
+  -Dlogging.configuration=file:"$JBOSS_HOME/jboss/configuration/logging.properties" \
+  -jar "$JBOSS_HOME/jboss-modules.jar" \
+  -mp "$JBOSS_HOME/modules" \
+  org.jboss.as.standalone \
+  -Djboss.home.dir="$JBOSS_HOME" \
+  -Djboss.server.base.dir="$JBOSS_HOME/jboss" \
+  -Djboss.server.data.dir="{{ jboss_data_dir }}" \
+  -Djboss.server.log.dir="{{ jboss_log_dir }}"

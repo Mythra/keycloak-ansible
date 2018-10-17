@@ -1,0 +1,5 @@
+---
+service_account_group: "{{ service_account_user }}"
+service_account_home: "/home/{{ service_account_user }}"
+service_account_description: "{{ service_account_user }} service account"
+service_account_shell: /usr/local/bin/bash

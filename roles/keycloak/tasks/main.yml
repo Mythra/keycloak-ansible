@@ -1,0 +1,150 @@
+---
+- name: Keycloak | Download Keycloak Tar.Gz
+  get_url:
+    url: "https://downloads.jboss.org/keycloak/{{ keycloak_version }}/keycloak-{{ keycloak_version }}.tar.gz"
+    dest: /tmp/keycloak.tar.gz
+    mode: "0640"
+
+- name: Keycloak | Ensure Keycloak Dir Exists
+  file:
+    path: "{{ keycloak_dir }}"
+    state: directory
+    owner: keycloak
+    group: keycloak
+    mode: "0755"
+
+- name: Keycloak | Overwrite Keycloak install dir
+  shell: "tar -xvzf /tmp/keycloak.tar.gz -C {{ keycloak_dir }} --strip-components 1"
+  args:
+    executable: /usr/local/bin/bash
+
+- name: Keycloak | Ensure Keycloak Owner is correct
+  file:
+    path: "{{ keycloak_dir }}"
+    state: directory
+    owner: keycloak
+    group: keycloak
+    mode: "0755"
+
+- name: Keycloak | Remove Keycloak tar.gz
+  file:
+    path: /tmp/keycloak.tar.gz
+    state: absent
+
+- stat:
+    path: "{{ keycloak_dir }}/bin/custom-standalone.sh"
+  register: custom_bin_places
+
+- name: Keycloak | Remove old bin directory
+  file:
+    path: "{{ keycloak_dir }}/bin"
+    state: absent
+  when: custom_bin_places.stat.exists == False
+
+- name: Keycloak | Create new bin directory
+  file:
+    path: "{{ keycloak_dir }}/bin"
+    state: directory
+    owner: keycloak
+    group: keycloak
+    mode: "0755"
+  when: custom_bin_places.stat.exists == False
+
+- name: Keycloak | Place Custom Scripts
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ keycloak_dir }}/bin/{{ item }}"
+    owner: keycloak
+    group: keycloak
+    mode: "0755"
+  when: custom_bin_places.stat.exists == False
+  with_items:
+    - "custom-standalone.sh"
+    - "keycloak-add-user.sh"
+
+- name: Keycloak | Remove Example Domain Configuration
+  file:
+    path: "{{ keycloak_dir }}/domain"
+    state: absent
+
+- name: Keycloak | Remove Example Standalong Configuration
+  file:
+    path: "{{ keycloak_dir }}/standalone"
+    state: absent
+
+- name: Keycloak | Create PID Dir
+  file:
+    path: /var/run/keycloak
+    state: directory
+    owner: keycloak
+    group: keycloak
+    mode: "0755"
+
+- name: Keycloak | Create JBOSS Base Directory
+  file:
+    path: "{{ keycloak_dir }}/jboss"
+    state: directory
+    owner: keycloak
+    group: keycloak
+    mode: "0755"
+
+- name: Keycloak | Create JBOSS Data Directory
+  file:
+    path: "{{ jboss_data_dir }}"
+    state: directory
+    owner: keycloak
+    group: keycloak
+    mode: "0755"
+
+- name: Keycloak | Place Down Necessary JBOSS Folders
+  file:
+    path: "{{ keycloak_dir }}/jboss/{{ item }}"
+    state: directory
+    owner: keycloak
+    group: keycloak
+    mode: "0755"
+  with_items:
+    - "configuration"
+    - "deployments"
+    - "lib"
+    - "tmp"
+
+- name: Keycloak | Place Config Files Down
+  copy:
+    src: "{{ item }}"
+    dest: "{{ keycloak_dir }}/jboss/configuration/{{ item }}"
+    owner: keycloak
+    group: keycloak
+    mode: "0600"
+  with_items:
+    - "logging.properties"
+
+- name: Keycloak | Place Config Templates Down
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ keycloak_dir }}/jboss/configuration/{{ item }}"
+    owner: keycloak
+    group: keycloak
+    mode: "0600"
+  with_items:
+    - application-roles.properties
+    - application-users.properties
+    - mgmt-groups.properties
+    - mgmt-users.properties
+    - standalone.xml
+
+- name: Keycloak | Ensure JBOSS Log Directory exists
+  file:
+    path: "{{ jboss_log_dir }}"
+    state: directory
+    owner: keycloak
+    group: keycloak
+    mode: "0755"
+
+- name: Keycloak | Place Down Service File
+  template:
+    src: keycloak.j2
+    dest: /etc/rc.d/keycloak
+    owner: root
+    group: wheel
+    mode: "0555"

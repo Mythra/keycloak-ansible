@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  become: yes
+  roles:
+    - pre-reqs
+    - role: service-account
+      service_account_user: "keycloak"
+    - keycloak

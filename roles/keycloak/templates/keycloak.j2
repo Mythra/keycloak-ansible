@@ -1,0 +1,28 @@
+#!/bin/sh
+#
+# PROVIDE: keycloak
+# REQUIRE: networking
+# KEYWORD:
+
+# FreeBSD 11.2
+
+. /etc/rc.subr
+
+name="keycloak"
+rcvar="keycloak_enable"
+keycloak_user="keycloak"
+keycloak_command="{{ keycloak_dir }}/bin/custom-standalone.sh"
+pidfile="/var/run/keycloak/${name}.pid"
+command="/usr/sbin/daemon"
+command_args="-P ${pidfile} -r -f ${keycloak_command}"
+stop_postcmd=keycloak_cleanup
+
+keycloak_cleanup() {
+  # JBoss spins up a child process it doesn't cleanup.
+  pkill -9 -u `id -u keycloak`
+}
+
+load_rc_config $name
+: ${keycloak_enable:=no}
+
+run_rc_command "$1"
